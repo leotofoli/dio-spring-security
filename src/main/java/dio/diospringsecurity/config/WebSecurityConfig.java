@@ -1,6 +1,7 @@
-package dio.diospringsecurity;
+package dio.diospringsecurity.config;
 
 import jakarta.servlet.Filter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -22,7 +23,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
-        @Bean
+
+    @Autowired
+    private SecurityDataBaseService securityService;
+    @Autowired
+    public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(securityService)
+                .passwordEncoder(NoOpPasswordEncoder.getInstance());
+    }
+
+    /*
+    @Bean
     public UserDetailsService userDetailsService() {
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
         manager.createUser(User.withUsername("user")
@@ -35,10 +46,12 @@ public class WebSecurityConfig {
                 .build());
         return manager;
     }
+    */
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.formLogin(Customizer.withDefaults());
+        //http.formLogin(Customizer.withDefaults());
+        http.httpBasic(Customizer.withDefaults());
         http.authorizeHttpRequests((authz) -> authz
                 .requestMatchers("/").permitAll()
                 .requestMatchers("/login").permitAll()
